@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Maçã Mortal - O Jogo da Minhoca</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;700;800;900&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <div class="game-container">
+
+        <!-- ==============================================
+             LOBBY PRINCIPAL DO JOGO
+             ============================================== -->
+        <div id="lobbyView" class="lobby-view active">
+            <!-- Barra Superior do Lobby -->
+            <header class="lobby-top-bar">
+                <!-- Perfil do Jogador -->
+                <div class="player-profile-pill" id="btnOpenProfile" title="Clique para editar seu perfil">
+                    <div class="player-avatar-badge" id="lobbyAvatarDisplay">🐍</div>
+                    <div class="player-profile-text">
+                        <span class="player-name-display" id="lobbyNameDisplay">Serpente Mestre</span>
+                        <span class="player-title-display" id="lobbyTitleDisplay">Fase 1 • Recruta</span>
+                    </div>
+                    <span class="edit-icon-badge">✏️</span>
+                </div>
+
+                <!-- Saldo de Dinheiro & Controles -->
+                <div class="lobby-header-right">
+                    <div class="gems-pill" title="Suas Mortal Gems">
+                        <span class="gem-icon">💎</span>
+                        <span id="lobbyGemsDisplay">0</span>
+                    </div>
+                    <button id="btnLobbySound" class="btn-icon" title="Ativar/Desativar Som" aria-label="Som">
+                        <span id="lobbySoundIcon">🔊</span>
+                    </button>
+                    <button id="btnLobbyHelp" class="btn-icon" title="Como Jogar" aria-label="Ajuda">
+                        <span>❓</span>
+                    </button>
+                </div>
+            </header>
+
+            <!-- Seção Central / Hero Showcase da Minhoca -->
+            <div class="lobby-hero-card">
+                <div class="brand-title-large">
+                    <span class="title-icon-large">🍎☠️</span>
+                    <h1 class="title-text-large">Maçã Mortal</h1>
+                </div>
+                <p class="lobby-tagline">Devore as frutas, supere as armadilhas mortais e escale o ranking de fases!</p>
+
+                <!-- Pedestal 3D Interativo com a Minhoca Equipada -->
+                <div class="hero-pedestal-wrapper" id="btnPedestalToShop" title="Clique para trocar de roupa na Loja!">
+                    <div class="pedestal-podium">
+                        <canvas id="showcaseCanvas" width="240" height="240"></canvas>
+                    </div>
+                    <div class="pedestal-skin-tag">
+                        <span id="showcaseSkinIcon">🐍</span>
+                        <strong id="showcaseSkinName">Ciber Esmeralda</strong>
+                        <span class="pedestal-change-hint">🛒 Trocar Roupa</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Grade de Ações do Lobby -->
+            <div class="lobby-actions-grid">
+                <!-- Botão Principal Jogar -->
+                <button id="btnPlayFromLobby" class="btn-lobby-play">
+                    <div class="btn-play-content">
+                        <span class="btn-play-icon">▶️</span>
+                        <div class="btn-play-text">
+                            <span class="btn-play-title">JOGAR AGORA</span>
+                            <span class="btn-play-subtitle" id="lobbyPlaySubtitle">Iniciar Fase 1</span>
+                        </div>
+                    </div>
+                    <span class="btn-play-arrow">⚡</span>
+                </button>
+
+                <!-- Grade de Botões Secundários -->
+                <div class="lobby-secondary-buttons">
+                    <button id="btnOpenLevelsFromLobby" class="btn-lobby-card levels-card">
+                        <span class="card-icon">🗺️</span>
+                        <div class="card-text">
+                            <strong>Mapa de Fases</strong>
+                            <span id="lobbyLevelsUnlocked">Fase 1 Liberada</span>
+                        </div>
+                    </button>
+
+                    <button id="btnOpenShopFromLobby" class="btn-lobby-card shop-card">
+                        <span class="card-icon">🛒</span>
+                        <div class="card-text">
+                            <strong>Loja Mortal</strong>
+                            <span>Roupas & Cores</span>
+                        </div>
+                    </button>
+
+                    <button id="btnOpenRankingFromLobby" class="btn-lobby-card ranking-card">
+                        <span class="card-icon">🏆</span>
+                        <div class="card-text">
+                            <strong>Ranking Global</strong>
+                            <span>Mestres das Fases</span>
+                        </div>
+                    </button>
+
+                    <button id="btnOpenProfileFromLobby" class="btn-lobby-card profile-card">
+                        <span class="card-icon">👤</span>
+                        <div class="card-text">
+                            <strong>Meu Perfil</strong>
+                            <span>Nome & Conquistas</span>
+                        </div>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+
+        <!-- ==============================================
+             TELA DE JOGO / PARTIDA ATIVA
+             ============================================== -->
+        <div id="gameView" class="game-view">
+            <!-- Cabeçalho da Partida -->
+            <header class="game-header">
+                <div class="brand-title">
+                    <button id="btnBackToLobby" class="btn-icon btn-back-lobby" title="Voltar ao Lobby">
+                        <span>🏠</span>
+                        <span class="back-text">Lobby</span>
+                    </button>
+                    <span class="title-text" style="font-size: 1.1rem; margin-left: 6px;">Maçã Mortal</span>
+                </div>
+                <div class="header-actions">
+                    <div class="gems-pill" title="Suas Mortal Gems">
+                        <span class="gem-icon">💎</span>
+                        <span id="gemsCount">0</span>
+                    </div>
+                    <button id="btnGameShop" class="btn-icon btn-shop" title="Loja de Roupas">
+                        <span>🛒</span>
+                    </button>
+                    <button id="btnSound" class="btn-icon" title="Som">
+                        <span id="soundIcon">🔊</span>
+                    </button>
+                    <button id="btnPause" class="btn-icon" title="Pausar">
+                        <span id="pauseIcon">⏸️</span>
+                    </button>
+                </div>
+            </header>
+
+            <!-- HUD (Painel de Status) -->
+            <div class="hud-bar">
+                <div class="hud-card level-card">
+                    <span class="hud-label">Fase Atual</span>
+                    <span id="levelValue" class="hud-value level-text">FASE 1</span>
+                    <div class="level-progress-container" title="Progresso da Fase">
+                        <div id="levelProgressBar" class="level-progress-fill"></div>
+                    </div>
+                    <span id="levelProgressText" class="level-progress-label">0 / 5 Frutas</span>
+                </div>
+                <div class="hud-card score">
+                    <span class="hud-label">Pontos</span>
+                    <span id="scoreValue" class="hud-value">0</span>
+                </div>
+                <div class="hud-card high-score">
+                    <span class="hud-label">Recorde</span>
+                    <span id="highScoreValue" class="hud-value">0</span>
+                </div>
+                <div class="hud-card">
+                    <span class="hud-label">Vida</span>
+                    <div class="lives-container" id="livesContainer">
+                        <span class="life-heart" id="heart1" title="1 Vida - Morte Súbita!">❤️</span>
+                    </div>
+                </div>
+                <div class="hud-card turbo-card" id="hudTurboCard" title="Segure SHIFT para Turbo!">
+                    <span class="hud-label">Turbo [Shift]</span>
+                    <span id="hudTurboText" class="hud-value turbo-status">⚡ 1x</span>
+                </div>
+            </div>
+
+            <!-- Banner de Perigo da Maçã Mortal -->
+            <div id="mortalAlertBanner" class="mortal-alert-banner">
+                <span>☠️</span>
+                <span>MAÇÃ MORTAL NO MAPA! PERIGO IMINENTE!</span>
+            </div>
+
+            <!-- Área do Canvas -->
+            <div class="canvas-wrapper" id="canvasWrapper">
+                <canvas id="gameCanvas" width="560" height="560"></canvas>
+
+                <!-- Tela de Fase Completa (Level Up) -->
+                <div id="levelUpModal" class="overlay-screen">
+                    <div class="celebration-badge">✨ FASE CONCLUÍDA! ✨</div>
+                    <h2 class="overlay-title" id="levelUpTitle" style="color: #00f59b; margin-top: 6px;">Fase 1 Vencida!</h2>
+                    <p class="overlay-subtitle" id="levelUpDesc">Você coletou todas as frutas necessárias!</p>
+
+                    <div class="reward-box">
+                        <span class="reward-label">Recompensa da Fase:</span>
+                        <div class="reward-amount">
+                            <span class="gem-icon" style="font-size: 1.8rem;">💎</span>
+                            <span id="levelUpGemsEarned">+10</span>
+                            <span>Mortal Gems!</span>
+                        </div>
+                    </div>
+
+                    <button id="btnNextLevel" class="btn-primary" style="background: linear-gradient(135deg, #00f59b, #009e60); box-shadow: 0 6px 20px rgba(0, 245, 155, 0.4);">
+                        <span>Próxima Fase ⚡</span>
+                    </button>
+                    <button id="btnLevelUpToLobby" class="btn-secondary" style="margin-top: 10px;">Voltar ao Lobby</button>
+                </div>
+
+                <!-- Tela de Pausa -->
+                <div id="pauseScreen" class="overlay-screen">
+                    <h2 class="overlay-title" style="color: #00e5ff;">Jogo Pausado</h2>
+                    <p class="overlay-subtitle">Pressione Espaço ou clique para continuar.</p>
+                    <button id="btnResume" class="btn-primary" style="background: linear-gradient(135deg, #00e5ff, #0077b6); box-shadow: 0 6px 20px rgba(0, 229, 255, 0.4);">
+                        <span>Continuar Partida</span>
+                    </button>
+                    <button id="btnRestartFromPause" class="btn-secondary">Reiniciar Partida</button>
+                    <button id="btnPauseToLobby" class="btn-secondary" style="border-color: rgba(255, 42, 95, 0.4); color: #ff6e8f;">Sair para o Lobby</button>
+                </div>
+
+                <!-- Tela de Game Over -->
+                <div id="gameOverScreen" class="overlay-screen">
+                    <div style="font-size: 2.8rem; margin-bottom: 6px;">☠️</div>
+                    <h2 class="overlay-title" style="color: var(--accent-red);">Fim de Jogo!</h2>
+                    <p id="gameOverReason" class="overlay-subtitle">A Maçã Mortal ceifou sua jornada.</p>
+
+                    <div class="gameover-stats">
+                        <div class="stat-row">
+                            <span>Fase Alcançada:</span>
+                            <span id="finalLevelReached" style="color: #00f59b;">FASE 1</span>
+                        </div>
+                        <div class="stat-row">
+                            <span>Pontuação Final:</span>
+                            <span id="finalScore">0</span>
+                        </div>
+                        <div class="stat-row">
+                            <span>Melhor Recorde:</span>
+                            <span id="bestScoreRecord">0</span>
+                        </div>
+                        <div class="stat-row">
+                            <span>Frutas Comidas:</span>
+                            <span id="finalApplesCount">0</span>
+                        </div>
+                        <div class="stat-row">
+                            <span>Saldo Mortal Gems:</span>
+                            <span id="finalGemsEarned" style="color: #00e5ff;">💎 0</span>
+                        </div>
+                    </div>
+
+                    <button id="btnPlayAgain" class="btn-primary">
+                        <span>Tentar Novamente 🔄</span>
+                    </button>
+                    <button id="btnGameOverToLobby" class="btn-secondary" style="margin-top: 10px;">
+                        <span>🏠 Voltar ao Lobby</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Controles Móveis Virtuais (D-Pad para telas touch) -->
+            <div class="dpad-container" id="dpadContainer">
+                <div class="dpad-row">
+                    <button class="dpad-btn" id="dpadUp" aria-label="Cima">▲</button>
+                </div>
+                <div class="dpad-row">
+                    <button class="dpad-btn" id="dpadLeft" aria-label="Esquerda">◀</button>
+                    <button class="dpad-btn" id="dpadDown" aria-label="Baixo">▼</button>
+                    <button class="dpad-btn" id="dpadRight" aria-label="Direita">▶</button>
+                </div>
+                <div class="dpad-row turbo-row">
+                    <button class="dpad-btn dpad-turbo-btn" id="dpadTurbo" aria-label="Turbo Boost">⚡ TURBO BOOST</button>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- ==============================================
+         MODAIS GLOBAIS (PERFIL, RANKING, FASES, LOJA, AJUDA)
+         ============================================== -->
+
+    <!-- 1. Modal de Perfil do Jogador -->
+    <div id="profileModal" class="modal-dialog">
+        <div class="modal-content profile-content">
+            <div class="modal-header">
+                <h3 class="modal-title">👤 Perfil do Jogador</h3>
+                <button id="btnCloseProfile" class="btn-icon">✕</button>
+            </div>
+
+            <div class="profile-edit-section">
+                <!-- Escolha de Avatar -->
+                <div class="avatar-selector-group">
+                    <span class="profile-section-label">Escolha seu Avatar</span>
+                    <div class="avatar-options-row">
+                        <button class="avatar-opt-btn active" data-avatar="🐍">🐍</button>
+                        <button class="avatar-opt-btn" data-avatar="⚡">⚡</button>
+                        <button class="avatar-opt-btn" data-avatar="🔥">🔥</button>
+                        <button class="avatar-opt-btn" data-avatar="🔮">🔮</button>
+                        <button class="avatar-opt-btn" data-avatar="👑">👑</button>
+                        <button class="avatar-opt-btn" data-avatar="💀">💀</button>
+                        <button class="avatar-opt-btn" data-avatar="🐲">🐲</button>
+                    </div>
+                </div>
+
+                <!-- Campo de Nome -->
+                <div class="name-input-group">
+                    <label for="playerNameInput" class="profile-section-label">Seu Nome de Sobrevivente</label>
+                    <div class="name-input-wrapper">
+                        <input type="text" id="playerNameInput" maxlength="16" placeholder="Digite seu nome..." autocomplete="off">
+                        <button id="btnSaveProfile" class="btn-save-name">Salvar</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Estatísticas de Carreira -->
+            <div class="profile-stats-card">
+                <span class="profile-section-label" style="margin-bottom: 8px;">Estatísticas de Carreira</span>
+                <div class="profile-stats-grid">
+                    <div class="pstat-item">
+                        <span class="pstat-label">Maior Fase</span>
+                        <strong class="pstat-val" id="profileMaxLevel">Fase 1</strong>
+                    </div>
+                    <div class="pstat-item">
+                        <span class="pstat-label">Recorde</span>
+                        <strong class="pstat-val" id="profileHighScore">0 pts</strong>
+                    </div>
+                    <div class="pstat-item">
+                        <span class="pstat-label">Frutas Comidas</span>
+                        <strong class="pstat-val" id="profileTotalFruits">0</strong>
+                    </div>
+                    <div class="pstat-item">
+                        <span class="pstat-label">Mortal Gems</span>
+                        <strong class="pstat-val" id="profileGems" style="color: #00e5ff;">💎 0</strong>
+                    </div>
+                </div>
+                <div class="profile-rank-title-box">
+                    <span>Título de Honra:</span>
+                    <strong id="profileHonorTitle" style="color: #ffd23f;">Recruta da Maçã</strong>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 2. Modal de Ranking Global (Hall da Fama) -->
+    <div id="rankingModal" class="modal-dialog">
+        <div class="modal-content ranking-content">
+            <div class="modal-header">
+                <div class="ranking-header-title">
+                    <h3 class="modal-title">🏆 Ranking Global</h3>
+                    <span class="ranking-header-sub">Classificação por Fases Vencidas</span>
+                </div>
+                <button id="btnCloseRanking" class="btn-icon">✕</button>
+            </div>
+            <p class="ranking-desc">Os jogadores que avançam mais fases dominam o topo do Hall da Fama! Supere as fases para subir de posição.</p>
+
+            <div class="leaderboard-table-container">
+                <div class="leaderboard-header-row">
+                    <span>Rank</span>
+                    <span>Jogador</span>
+                    <span>Maior Fase</span>
+                    <span>Pontos</span>
+                </div>
+                <div class="leaderboard-list" id="leaderboardList">
+                    <!-- Gerado dinamicamente via JS -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 3. Modal de Mapa de Fases -->
+    <div id="levelSelectModal" class="modal-dialog">
+        <div class="modal-content levels-content">
+            <div class="modal-header">
+                <div class="ranking-header-title">
+                    <h3 class="modal-title">🗺️ Mapa de Fases</h3>
+                    <span class="ranking-header-sub">Supere a meta de cada fase para liberar a próxima!</span>
+                </div>
+                <button id="btnCloseLevelSelect" class="btn-icon">✕</button>
+            </div>
+
+            <div class="levels-grid" id="levelsGrid">
+                <!-- Gerado dinamicamente via JS -->
+            </div>
+        </div>
+    </div>
+
+    <!-- 4. Modal Loja Mortal (Skins & Roupas) -->
+    <div id="shopModal" class="modal-dialog">
+        <div class="modal-content shop-content">
+            <div class="modal-header">
+                <div class="shop-title-group">
+                    <h3 class="modal-title">🛒 Loja de Roupas & Skins</h3>
+                    <div class="shop-gems-balance">
+                        <span>Saldo:</span>
+                        <span class="gem-icon">💎</span>
+                        <strong id="shopGemsBalance">0</strong>
+                    </div>
+                </div>
+                <button id="btnCloseShop" class="btn-icon">✕</button>
+            </div>
+            <p class="shop-desc">Vença fases para ganhar <b>Mortal Gems 💎</b> e equipar visuais modernos e lendários na sua minhoca!</p>
+            <div class="shop-grid" id="shopGrid">
+                <!-- Gerado dinamicamente via JS -->
+            </div>
+        </div>
+    </div>
+
+    <!-- 5. Modal "Como Jogar" -->
+    <div id="helpModal" class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Como Jogar</h3>
+                <button id="btnCloseHelp" class="btn-icon">✕</button>
+            </div>
+            <div class="help-grid">
+                <div class="help-item">
+                    <div class="help-icon">🍎🍇</div>
+                    <div class="help-text">
+                        <strong>Frutas & Meta de Fase</strong>
+                        <p>Colete as frutas exigidas em cada fase para avançar! Ao passar de fase, você ganha <b>Mortal Gems 💎</b> e sobe no Ranking!</p>
+                    </div>
+                </div>
+                <div class="help-item">
+                    <div class="help-icon">🛒</div>
+                    <div class="help-text">
+                        <strong>Loja Mortal de Roupas</strong>
+                        <p>Gaste suas Mortal Gems na loja para comprar roupas incríveis: Dragão de Lava, Trovão Neon, Rei Dourado e mais!</p>
+                    </div>
+                </div>
+                <div class="help-item">
+                    <div class="help-icon">💀</div>
+                    <div class="help-text">
+                        <strong>Morte Súbita (Apenas 1 Vida!)</strong>
+                        <p>Você tem uma única vida! Se encostar nas paredes, no seu próprio corpo ou na Maçã Mortal, você perde o jogo na hora!</p>
+                    </div>
+                </div>
+                <div class="help-item">
+                    <div class="help-icon">⭐</div>
+                    <div class="help-text">
+                        <strong>Maçã Dourada (+500 pts + Escudo)</strong>
+                        <p>Surge raramente! Concede bônus de pontos e imunidade temporária para destruir a Maçã Mortal.</p>
+                    </div>
+                </div>
+                <div class="help-item">
+                    <div class="help-icon">⚡</div>
+                    <div class="help-text">
+                        <strong>Velocidade Lisa & Modo Turbo</strong>
+                        <p>A serpente agora desliza suavemente a 60/120 FPS! Segure <b>Shift</b> no teclado ou toque no botão <b>Turbo ⚡</b> no celular para disparar com super velocidade!</p>
+                    </div>
+                </div>
+                <div class="help-item">
+                    <div class="help-icon">🎮</div>
+                    <div class="help-text">
+                        <strong>Controles</strong>
+                        <p>Teclas de Seta ou <b>W, A, S, D</b> para mover. <b>Espaço</b> ou <b>P</b> para pausar. No celular, use o D-Pad virtual ou deslize o dedo (swipe)!</p>
+                    </div>
+                </div>
+            </div>
+            <button id="btnHelpGotIt" class="btn-primary" style="margin-top: 10px; justify-content: center;">Entendido!</button>
+        </div>
+    </div>
+
+    <!-- Scripts do Jogo -->
+    <script src="audio.js"></script>
+    <script src="game.js"></script>
+</body>
+</html>
